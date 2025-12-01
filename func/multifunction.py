@@ -41,13 +41,16 @@ def getalninfo(aln):
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('alns', nargs=-1, type=click.Path(exists=True))
-@click.option('--output', '-o', default='MSA.summary.svg', show_default=True, help='output filename')
+@click.option('--output', '-o', default='msa.summary.svg', show_default=True, help='output filename')
 def summarizealns(alns,output):
+    """
+    summarize msas
+    """
     gap_ncols_p = [];iden_ncols_p = [];total_lengths = []
     for aln in alns:
         total_length,gap_ncol,iden_ncol = basicalninfo(aln)
-        gap_ncols_p += [gap_ncol/total_length]
-        iden_ncols_p += [iden_ncol/total_length]
+        gap_ncols_p += [gap_ncol/total_length*100]
+        iden_ncols_p += [iden_ncol/total_length*100]
         total_lengths += [total_length]
     fig, ax = plt.subplots(1,1,figsize=(4, 4))
     ax.scatter(total_lengths,gap_ncols_p,s=20,marker='o',color='r',label='Gap percentage')
