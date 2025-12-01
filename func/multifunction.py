@@ -34,8 +34,8 @@ def getalninfo(aln):
         if '-' in col_seq: gap_ncol+=1
         elif len(set(col_seq))==1:
             iden_ncol+=1
-    logging.info("Gap column: {}/{:.2f}".format(gap_ncol,gap_ncol/total_length))
-    logging.info("Identical column: {}/{:.2f}".format(iden_ncol,iden_ncol/total_length))
+    print("Gap column: {}/{:.2f}".format(gap_ncol,gap_ncol/total_length))
+    print("Identical column: {}/{:.2f}".format(iden_ncol,iden_ncol/total_length))
 
 if __name__ == '__main__':
 	cli()
