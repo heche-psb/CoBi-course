@@ -16,7 +16,6 @@ def cli(verbosity):
         handlers=[RichHandler()],
         datefmt='%H:%M:%S',
         level=verbosity.upper())
-    logging.info("Proper Initiation")
     pass
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
