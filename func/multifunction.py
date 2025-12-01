@@ -1,4 +1,4 @@
-from Bio import AlignIO
+from Bio import AlignIO,Phylo
 import os
 import click
 import logging
@@ -65,6 +65,21 @@ def summarizealns(alns,output):
     fig.savefig(output,format ='svg', bbox_inches='tight')
     plt.close()
 
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('treefile', type=click.Path(exists=True))
+@click.option('--output', '-o', default=None, show_default=True, help='output filename')
+@click.option('--outgroup', '-og', default='Zygnema_circumcarinatum_SAG_698-1b', show_default=True, help='outgroup name')
+def reroot(treefile,output,outgroup):
+    """
+    reroot gene tree on algal outgroup
+    """
+    tree = Phylo.read(treefile,'newick')
+    tipnames = [tip.name for tip in tree.get_terminals()]
+    outgroupname = [tipname for tipname in tipnames if tipname.startswith(outgroup)][0]
+    tree.root_with_outgroup(outgroupname)
+    Phylo.draw_ascii(tree)
+    outputname = treefile+'.reroot' if output is None else output
+    Phylo.write(tree,outputname,format='newick')
 
 if __name__ == '__main__':
 	cli()
