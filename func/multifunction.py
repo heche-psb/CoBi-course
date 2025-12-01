@@ -22,6 +22,9 @@ def cli(verbosity):
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('aln', type=click.Path(exists=True))
 def getalninfo(aln):
+    """
+    get basic msa information
+    """
     Align_obj = AlignIO.read(aln, "fasta")
     total_length = Align_obj.get_alignment_length()
     gap_ncol = 0
