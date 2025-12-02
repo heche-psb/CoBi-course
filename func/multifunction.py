@@ -5,6 +5,8 @@ import logging
 from rich.logging import RichHandler
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from scipy import stats
 
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--verbosity', '-v', type=click.Choice(['info', 'debug']), default='info', help="Verbosity level, default = info.")
@@ -111,6 +113,57 @@ def Concat(alns,gsmap,output):
     with open (fname,"w") as f:
         for spn,seq in seqs.items():
             f.write('>{}\n{}\n'.format(spn,seq))
+
+def kde_mode(kde_x, kde_y):
+    maxy_iloc = np.argmax(kde_y)
+    mode = kde_x[maxy_iloc]
+    return mode, max(kde_y)
+
+def get_totalH(Hs):
+    CHF = 0
+    for i in Hs: CHF = CHF + i
+    return CHF
+
+def addvvline(ax,xvalue,color,lstyle,labell):
+    if labell == '': ax.axvline(xvalue,color=color, ls=lstyle, lw=1)
+    else: ax.axvline(xvalue,color=color, ls=lstyle, lw=1, label='{}: {:.1f}'.format(labell,xvalue))
+    return ax
+
+def drawdistribution(X):
+    lower,upper = min(X)*0.9,max(X)*1.1
+    fig, ax = plt.subplots()
+    Hs, Bins, patches = ax.hist(X, bins = np.arange(lower,upper,1), color='gray', alpha=1, rwidth=0.8)
+    kde_x = np.linspace(lower,upper,num=500)
+    kde_y = stats.gaussian_kde(X,bw_method='scott').pdf(kde_x)
+    CHF = get_totalH(Hs)
+    scaling = CHF*1
+    ax.plot(kde_x, kde_y*scaling, color='k',alpha=0.8, ls = '--',lw = 1,label='KDE curve')
+    ax.legend(loc=1,fontsize=10,frameon=False)
+    ax.set_xlabel("MLE site rate", fontsize = 10)
+    ax.set_ylabel("Number of sites", fontsize = 10)
+    inset_ax = fig.add_axes([2/5, 2/5, 8/16, 8/16])
+    X_below5 = X[X<=5]
+    lower,upper = min(X_below5)*0.9,max(X_below5)*1.1
+    Hs, Bins, patches = inset_ax.hist(X_below5, bins = np.arange(lower,upper,0.1), color='gray', alpha=1, rwidth=0.8)
+    inset_ax.legend(loc=1,fontsize=10,frameon=False)
+    inset_ax.set_xlabel("MLE site rate", fontsize = 10)
+    inset_ax.set_ylabel("Number of sites", fontsize = 10)
+    inset_ax.legend(loc=1,fontsize=10,frameon=False)
+    return fig,ax
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('ratefile', type=click.Path(exists=True))
+@click.option('--output', '-o', default=None, show_default=True, help='output filename')
+def ratedis(ratefile,output):
+    """
+    draw site rate distribution
+    """
+    df = pd.read_csv(ratefile,skiprows=6,header=0,index_col=None,sep='\t')
+    rates = df['Rate'].to_numpy()
+    fig,ax = drawdistribution(rates)
+    fig.tight_layout()
+    fig.savefig(output,format ='svg', bbox_inches='tight')
+    plt.close()
 
 if __name__ == '__main__':
 	cli()
