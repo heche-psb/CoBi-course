@@ -163,5 +163,23 @@ def ratedis(ratefile,output):
     fig.savefig(output,format ='svg', bbox_inches='tight')
     plt.close()
 
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('treefile', type=click.Path(exists=True))
+@click.option('--gsmap', '-m', default=None, show_default=True,help='gsmap')
+@click.option('--output', '-o', default=None, show_default=True, help='output filename')
+def renamegenetree(treefile,gsmap,output):
+    """
+    Rename gene names to species names
+    """
+    Gsmap = {}
+    with open(gsmap,'r') as f:
+        for line in f.readlines():
+            gene, sp = line.strip().split(' ')
+            Gsmap[gene] = sp
+    tree = Phylo.read(treefile,'newick')
+    for tip in tree.get_terminals():
+        tip.name = Gsmap[tip.name]
+    Phylo.write(tree,output,format='newick')
+
 if __name__ == '__main__':
 	cli()
