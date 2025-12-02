@@ -221,5 +221,25 @@ def scfgcfconstrast(scffile,gcffile,output):
     scf = df_scf['sCF'].to_list()
     plotlinearregression(scf,gcf,output)
 
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('scffile', type=click.Path(exists=True))
+@click.argument('gcffile', type=click.Path(exists=True))
+def correlationtest(scffile,gcffile):
+    """
+    Calculate the Pearson and Spearman correlation coefficient
+    """
+    df_gcf = pd.read_csv(gcffile,skiprows=17,header=0,index_col=None,sep='\t')
+    df_scf = pd.read_csv(scffile,skiprows=14,header=0,index_col=None,sep='\t')
+    gcf = df_gcf['gCF'].to_list()
+    scf = df_scf['sCF'].to_list()
+    data_xy = [(x,y) for x,y in zip(scf,gcf)]
+    data_xy = sorted(data_xy, key=lambda x:x[0])
+    sorted_X,sorted_Y = np.array([x for x,y in data_xy]),np.array([y for x,y in data_xy])
+    per_coefficient, Per_p_value = stats.pearsonr(sorted_X,sorted_Y)
+    print("The PCC and P value between sCF and gCF: {0}, {1}".format(per_coefficient,Per_p_value))
+    spe_coefficient, Spe_p_value = stats.spearmanr(sorted_X,sorted_Y)
+    print("The SCC and P value between sCF and gCF: {0}, {1}".format(spe_coefficient, Spe_p_value))
+
+
 if __name__ == '__main__':
 	cli()
