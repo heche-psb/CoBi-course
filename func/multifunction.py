@@ -81,5 +81,36 @@ def reroot(treefile,output,outgroup):
     outputname = treefile+'.reroot' if output is None else output
     Phylo.write(tree,outputname,format='newick')
 
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('alns', nargs=-1, type=click.Path(exists=True))
+@click.option('--gsmap', '-m', default=None, show_default=True,help='gsmap')
+@click.option('--output', '-o', default=None, show_default=True, help='output filename')
+def Concat(alns,gsmap,output):
+    """
+    Concatenate msas
+    """
+    seqs = {}
+    fname = gsmap+'.Concat' if output is None else output
+    if gsmap is not None:
+        Gsmap = {}
+        with open(gsmap,'r') as f:
+            for line in f.readlines():
+                gene, sp = line.strip().split(' ')
+                Gsmap[gene] = sp
+    splist = list(set(Gsmap.values()))
+    for aln in alns:
+        aln_object = AlignIO.read(aln,'fasta')
+        for j in range(len(aln_object)):
+            spn = aln_object[j].id
+            if gsmap is not None: spn = Gsmap[spn]
+            sequence = aln_object[j].seq
+            if seqs.get(spn) is None:
+                seqs[spn] = sequence
+            else:
+                seqs[spn] = seqs[spn] + sequence
+    with open (fname,"w") as f:
+        for spn,seq in seqs.items():
+            f.write('>{}\n{}\n'.format(spn,seq))
+
 if __name__ == '__main__':
 	cli()
