@@ -145,10 +145,8 @@ def drawdistribution(X):
     X_below5 = X[X<=5]
     lower,upper = min(X_below5)*0.9,max(X_below5)*1.1
     Hs, Bins, patches = inset_ax.hist(X_below5, bins = np.arange(lower,upper,0.1), color='gray', alpha=1, rwidth=0.8)
-    inset_ax.legend(loc=1,fontsize=10,frameon=False)
     inset_ax.set_xlabel("MLE site rate", fontsize = 10)
     inset_ax.set_ylabel("Number of sites", fontsize = 10)
-    inset_ax.legend(loc=1,fontsize=10,frameon=False)
     return fig,ax
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
