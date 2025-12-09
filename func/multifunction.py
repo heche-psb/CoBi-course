@@ -54,7 +54,7 @@ def summarizealns(alns,output):
         gap_ncols_p += [gap_ncol/total_length*100]
         iden_ncols_p += [iden_ncol/total_length*100]
         total_lengths += [total_length]
-    fig, ax = plt.subplots(1,1,figsize=(4, 4))
+    fig, ax = plt.subplots(1,1,figsize=(6, 4))
     ax.scatter(total_lengths,gap_ncols_p,s=20,marker='o',color='r',label='Gap percentage')
     ax.hlines(np.mean(gap_ncols_p),np.min(total_lengths),np.max(total_lengths),color='r', linestyle='--', lw=2,label='Mean gap percentage')
     ax.scatter(total_lengths,iden_ncols_p,s=20,marker='o',color='b',label='Identity percentage')
@@ -62,9 +62,9 @@ def summarizealns(alns,output):
     ax.set_xlabel("MSA length",fontsize=10)
     ax.set_ylabel("Gap/Identity percentage",fontsize=10)
     ax.grid(ls=":")
-    ax.legend(loc=0,fontsize=10,frameon=False)
+    ax.legend(fontsize=10,frameon=False,bbox_to_anchor=(1.05, 1),loc='upper left', borderaxespad=0.)
     fig.tight_layout()
-    fig.savefig(output,format ='svg', bbox_inches='tight')
+    fig.savefig(output,format ='svg',bbox_inches='tight')
     plt.close()
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
