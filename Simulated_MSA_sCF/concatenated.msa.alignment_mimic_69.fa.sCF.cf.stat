@@ -1,0 +1,20 @@
+# Concordance factor statistics
+# This file can be read in MS Excel or in R with command:
+#   tab=read.table('concatenated.msa.alignment_mimic_69.fa.sCF.cf.stat',header=TRUE)
+# Columns are tab-separated with following meaning:
+#   ID: Branch ID
+#   sCF: Site concordance factor averaged over 100 quartets (=sCF_N/sN %)
+#   sCF_N: sCF in absolute number of sites
+#   sDF1: Site discordance factor for alternative quartet 1 (=sDF1_N/sN %)
+#   sDF1_N: sDF1 in absolute number of sites
+#   sDF2: Site discordance factor for alternative quartet 2 (=sDF2_N/sN %)
+#   sDF2_N: sDF2 in absolute number of sites
+#   sN: Number of informative sites averaged over 100 quartets
+#   Label: Existing branch label
+#   Length: Branch length
+ID	sCF	sCF_N	sDF1	sDF1_N	sDF2	sDF2_N	sN	Label	Length
+9	32.1	156	35.87	174.41	32.03	155.68	486.09		0.029217
+10	45.38	553.57	28.07	342.42	26.55	323.83	1219.82		0.0343679
+11	33.11	189.76	31.35	179.61	35.53	203.58	572.95		0.0363761
+12	39.04	200.37	31.99	164.19	28.96	148.72	513.28		0.0717967
+13	68.05	1290.3	16.16	306.53	15.79	299.5	1896.33		0.16393
