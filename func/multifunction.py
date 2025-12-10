@@ -240,6 +240,61 @@ def correlationtest(scffile,gcffile):
     spe_coefficient, Spe_p_value = stats.spearmanr(sorted_X,sorted_Y)
     print("The SCC and P value between sCF and gCF: {0}, {1}".format(spe_coefficient, Spe_p_value))
 
+def kde_mode(kde_x, kde_y):
+    maxy_iloc = np.argmax(kde_y)
+    mode = kde_x[maxy_iloc]
+    return mode, max(kde_y)
+
+def get_totalH(Hs):
+    CHF = 0
+    for i in Hs: CHF = CHF + i
+    return CHF
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('scffiles', nargs=-1, type=click.Path(exists=True))
+@click.option('--output', '-o', default=None, show_default=True, help='output filename')
+def quantifygtee(scffiles,output):
+    """
+    Quantify GTEE
+    """
+    ID_9,ID_10,ID_11,ID_12,ID_13 = [],[],[],[],[]
+    Observed_scfs = [30.58,37.48,33.51,35.74,57.54]
+    ID_all = [ID_9,ID_10,ID_11,ID_12,ID_13]
+    for scffile in scffiles:
+        df_scf = pd.read_csv(scffile,skiprows=14,header=0,index_col=None,sep='\t')
+        scfs = df_scf['sCF'].to_list()
+        for scf,ID_list in zip(scfs,ID_all):
+            ID_list.append(scf)
+    for ID_list in ID_all:
+        assert len(ID_list) == 100
+    fig, axes = plt.subplots(2,3,figsize=(9, 6))
+    br_IDs = ["ID_9","ID_10","ID_11","ID_12","ID_13"]
+    ind=0
+    for ax,ID_list,Observed_scf,br_ID in zip(axes.flatten(),ID_all,Observed_scfs,br_IDs):
+        data_scf = np.array(ID_list)
+        data_sdf = 100 - data_scf
+        minm,maxm = np.min(data_sdf),np.max(data_sdf)
+        observed_sdf = 100 - Observed_scf
+        Hs, bins, patches = ax.hist(data_sdf,bins=20,color='gray', alpha=0.8, rwidth=0.8,label='Simulation')
+        bin_width = bins[1] - bins[0]
+        kde_x = np.linspace(minm,maxm,num=500)
+        kde_y = stats.gaussian_kde(data_sdf,bw_method=lambda s: s.scotts_factor() * 1.5).pdf(kde_x)
+        CHF = get_totalH(Hs)
+        scaling = CHF*bin_width
+        mode, maxim = kde_mode(kde_x, kde_y)
+        ax.plot(kde_x, kde_y*scaling, color='k',alpha=1, ls = '-',lw=1.5)
+        ax.vlines(observed_sdf,0,1,transform=ax.get_xaxis_transform(),alpha=0.8,color='red',ls='--',label="Observation")
+        ax.vlines(mode,0,1,transform=ax.get_xaxis_transform(),alpha=0.8,color='k',ls='--',label="Mode of simulation")
+        if ind==4: ax.legend(loc=0,fontsize=8,frameon=False)
+        ax.set_title("Branch: "+br_ID,fontsize=10)
+        ax.set_xlabel("sDF", fontsize = 10)
+        ax.set_ylabel("Number of simulated MSAs", fontsize = 10)
+        ind+=1
+    axes.flatten()[-1].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(output,format ='svg', bbox_inches='tight')
+    plt.close()
+
 
 if __name__ == '__main__':
 	cli()
